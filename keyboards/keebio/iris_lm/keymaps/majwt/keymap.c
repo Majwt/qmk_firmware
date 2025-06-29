@@ -6,12 +6,24 @@
 #include QMK_KEYBOARD_H
 #define CTRL_ESC LCTL_T(KC_ESC) // ESC acts as Ctrl when held
 #define OE_GUI LGUI_T(OE_U)     // OE acts as GUI when held
+#define WORKSP LM(_SYM, MOD_LCTL)
 #define WINDOW LM(_SYM, MOD_LALT | MOD_LCTL)
 enum os_modes { OS_MAC, OS_WIN };
 
 static uint8_t current_os = OS_WIN;
 
-enum custom_keycodes { OS_TOGGLE = SAFE_RANGE, AE_U, OE_U, AO_U, MY_LCRL, SW_TOGGLE };
+
+// Shift + Space -> Underscore
+const key_override_t shift_space_override = ko_make_basic(MOD_MASK_SHIFT, KC_SPC, KC_UNDS);
+
+// This array must be null-terminated!
+const key_override_t* key_overrides[] = {
+    &shift_space_override,
+    NULL
+};
+
+
+enum custom_keycodes { OS_TOGGLE = SAFE_RANGE, AE_U, OE_U, AO_U, MY_LCRL, SW_TOGGLE, TILD, GRV, SHFT_SPC};
 
 enum custom_layers { _QWERTY, _SWEDISH, _SYM, _SYM_SE, _RGB };
 
@@ -21,27 +33,27 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // clang format off
     [_QWERTY] = LAYOUT(
         // ┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
-            QK_GESC,  KC_1,   KC_2,    KC_3,     KC_4,    KC_5,                               KC_6,   KC_7,    KC_8,     KC_9,     KC_0,   KC_DEL,
+            QK_GESC,  KC_1,   KC_2,    KC_3,     KC_4,    KC_5,                               KC_6,   KC_7,    KC_8,     KC_9,     KC_0,   KC_BSPC,
         // ├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
             KC_TAB,   KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                               KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    AO_U,
         // ├────────┼────────┼────────┬────────┬────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
             CTRL_ESC, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                               KC_H,    KC_J,    KC_K,    KC_L,    OE_U,    AE_U,
         // ├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-            KC_LALT,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    MO(_RGB),         WINDOW,  KC_N,   KC_M,     KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
+            KC_LALT,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    MO(_RGB),         WORKSP,  KC_N,   KC_M,     KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
         // └────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
-                                           LM(_SYM, MOD_LCTL), MY_LCRL, SFT_T(KC_SPC),   RSFT_T(KC_BSPC), MO(_SYM), LM(_SYM, MOD_LSFT)
+                                           WINDOW , MY_LCRL, SFT_T(KC_SPC),   RSFT_T(KC_BSPC), MO(_SYM), LM(_SYM, MOD_LSFT)
         //                                └────────┴────────┴────────┘                 └────────┴────────┴────────┘
         ),
 
     [_SYM] = LAYOUT(
         // ┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
-        KC_F12, KC_GRV, KC_LPRN, KC_RPRN, KC_SCLN, KC_COMM, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11,
+        KC_F12, GRV, KC_LPRN, KC_RPRN, KC_SCLN, KC_COMM, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11,
         // ├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-        KC_EXLM, KC_LCBR, KC_QUOT, KC_DQUO, KC_RCBR, KC_QUES, KC_AT, KC_LBRC, KC_RBRC, KC_BSLS, KC_QUES, XXXXXXX,
+        KC_EXLM, KC_LCBR, KC_QUOT, KC_DQUO, KC_RCBR, KC_QUES, KC_AT, KC_LBRC, KC_RBRC, KC_BSLS, KC_QUES, KC_DEL,
         // ├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
         KC_HASH, KC_CIRC, KC_EQL, KC_UNDS, KC_DLR, KC_ASTR, KC_LEFT, KC_DOWN, KC_UP, KC_RIGHT, KC_QUOT, XXXXXXX,
         // ├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-        KC_TILD, KC_LABK, KC_PIPE, KC_MINS, KC_RABK, KC_SLSH, KC_COLN, XXXXXXX, KC_DOT, KC_PLUS, KC_AMPR, _______, _______, _______,
+        TILD, KC_LABK, KC_PIPE, KC_MINS, KC_RABK, KC_SLSH, KC_COLN, XXXXXXX, KC_DOT, KC_PLUS, KC_AMPR, _______, _______, _______,
         // └────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
         KC_PERC, KC_SCLN, KC_DOT, XXXXXXX, _______, MO(_RGB)
         // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
@@ -107,6 +119,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             case OE_U:
             case AO_U:
             case SW_TOGGLE:
+            case GRV:
+            case TILD:
+            case SHFT_SPC:
                 return false; // Do not process these keycodes when released
             case MY_LCRL:
                 // Do not process these keycodes when released
@@ -228,6 +243,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 default_layer_set(1UL << _SWEDISH);
             } else {
                 default_layer_set(1UL << _QWERTY);
+            }
+            return false;
+        case TILD:
+            if (current_os == OS_MAC) {
+                    tap_code16(S(KC_INT1));
+            } else {
+                    tap_code16(KC_TILD);
+            }
+            return false;
+        case GRV:
+            if (current_os == OS_MAC) {
+                    tap_code16(KC_INT1);
+            } else {
+                    tap_code16(KC_GRV);
+            }
+            return false;
+
+        case SHFT_SPC:
+            if (shift_held) {
+                tap_code16(KC_UNDS);
+            } else {
+                tap_code(KC_SPC);
             }
             return false;
     }
